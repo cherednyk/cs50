@@ -1,0 +1,65 @@
+initial image
+n=1
+
+OOO
+OxO
+OOO
+
+***********************
+n=2
+
+OOOOOO
+OOOOOO
+OOxxOO
+OOxxOO
+OOOOOO
+OOOOOO
+
+n=3
+
+OOOOOOOOO
+OOOOOOOOO
+OOOOOOOOO
+OOOxxxOOO
+OOOxxxOOO
+OOOxxxOOO
+OOOOOOOOO
+OOOOOOOOO
+OOOOOOOOO
+
+***********************
+
+n=3
+
+OOOOOOOOO
+OOOxxxOOO
+OOOOOOOOO
+OOOOOOOOO < 
+OOOOOOOOO
+OOOOOOOOO
+OOOOOOOOO
+OOOOOOOOO
+OOOOOOOOO
+
+
+interate over rows (height of initial image)
+{
+	repeat n times //vertical resize
+	{
+	    set file position indicator in inFile to the beginning of current row
+	    
+    	iterate over pixels in row (width of initial image)
+        {
+    		read from inFile
+    		
+    		repeat n times //horizontal resize
+    	    {	
+    		    write to outFile
+    		}
+    		
+    		skip padding in inFile
+    		
+    		fill padding with zeroes in outFile
+    	}
+    }
+}

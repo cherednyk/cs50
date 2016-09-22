@@ -80,13 +80,16 @@ int main(int argc, char* argv[])
 
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
-             
+            
+            // turn red into white
             if (triple.rgbtRed == 255)
             {
                 triple.rgbtBlue = 255;
                 triple.rgbtGreen = 255;
                 
             }
+            
+            // turn image colors into shades of grey
             
             if (triple.rgbtRed <= 245 && triple.rgbtRed > 223) {
                 triple.rgbtRed = 211;
@@ -128,10 +131,6 @@ int main(int argc, char* argv[])
                 triple.rgbtRed = 21;
                 triple.rgbtBlue = 21;
                 triple.rgbtGreen = 21;
-            } else if (triple.rgbtRed <= 25) {
-                triple.rgbtRed = 0;
-                triple.rgbtBlue = 0;
-                triple.rgbtGreen = 0;
             }
 
             // write RGB triple to outfile

@@ -22,8 +22,10 @@ int main(int argc, char* argv[])
         return 1;
     }
     
+    // remember n argument in a "resize" variable
     int resize = atoi(argv[1]);
     
+    // validate the resize argument
     if ((isdigit(resize) != 0) || (resize < 1) || (resize > 100))
     {
         printf("Usage: ./copy n infile outfile\n");
@@ -69,15 +71,18 @@ int main(int argc, char* argv[])
         return 4;
     }
     
+    // create and resize metadata (BITMAPINFOHEADER) for new image
     BITMAPINFOHEADER bi2 = bi;
     bi2.biHeight = bi2.biHeight * resize;
     bi2.biWidth = bi2.biWidth * resize;  
     
-    // determine new padding for scanlines
+    // determine padding for scanlines (new image)
     int padding = (4 - (bi2.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
     
+    // determine size for new image including new padding
     bi2.biSizeImage = (bi2.biWidth * sizeof(RGBTRIPLE) + padding)  * abs(bi2.biHeight);
    
+    // create and resize metadata (BITMAPFILEHEADER) for new image   
     BITMAPFILEHEADER bf2 = bf;
     bf2.bfSize = bi2.biSizeImage + 54; 
 
@@ -87,39 +92,44 @@ int main(int argc, char* argv[])
     // write outfile's BITMAPINFOHEADER
     fwrite(&bi2, sizeof(BITMAPINFOHEADER), 1, outptr);
     
-    // determine old padding for scanlines
+    // determine padding for scanlines (old image)
     int paddingOld =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
     // iterate over infile's scanlines
-    for (int i = 0, biHeight = abs(bi2.biHeight); i < biHeight; i++)
+    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
     {
-        // iterate over pixels in scanline
-        for (int j = 0; j < bi2.biWidth; j++)
+        for (int a = 0; a < resize; a++)
         {
-            // temporary storage
-            RGBTRIPLE triple;
-
-            // read RGB triple from infile
-            
-            fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
-            
-            for (int res = 0; res < resize; res++)
+            // TODO set file position indicator in inFile to the beginning of current row
+            // fseek(inptr, , SEEK_SET);
+            fseek(inptr, i * (bi.biSizeImage / abs(bi.biHeight)) + bf.bfOffBits, SEEK_SET);
+            // iterate over pixels in scanline
+            for (int j = 0; j < bi.biWidth; j++)
             {
-                // write RGB triple to outfile
-                fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+                // colored pixel
+                RGBTRIPLE triple;
+    
+                // read RGB triple from infile
+                fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+                
+                // iterate over pixel in outfile "resize"-times
+                for (int res = 0; res < resize; res++)
+                {
+                    // write RGB triple to outfile "resize"-times
+                    fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+                }
+                
+                // TODO vertical resize
             }
-            
-            
-        }
-
-        // skip over padding, if any
-        fseek(inptr, paddingOld, SEEK_CUR);
-        
-
-        // then add it back (to demonstrate how)
-        for (int k = 0; k < padding; k++)
-        {
-            fputc(0x00, outptr);
+    
+            // skip over padding, if any in initial image
+            fseek(inptr, paddingOld, SEEK_CUR);
+    
+            // fill padding with zeroes in new image
+            for (int k = 0; k < padding; k++)
+            {
+                fputc(0x00, outptr);
+            }
         }
     }
 

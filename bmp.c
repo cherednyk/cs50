@@ -15,15 +15,14 @@
 int main(int argc, char* argv[])
 {
     // ensure proper usage
-    if (argc != 3)
+    if (argc != 2)
     {
-        printf("Usage: ./copy infile outfile\n");
+        printf("Usage: ./copy infile \n");
         return 1;
     }
 
     // remember filenames
     char* infile = argv[1];
-    char* outfile = argv[2];
 
     // open input file 
     FILE* inptr = fopen(infile, "r");
@@ -31,15 +30,6 @@ int main(int argc, char* argv[])
     {
         printf("Could not open %s.\n", infile);
         return 2;
-    }
-
-    // open output file
-    FILE* outptr = fopen(outfile, "w");
-    if (outptr == NULL)
-    {
-        fclose(inptr);
-        fprintf(stderr, "Could not create %s.\n", outfile);
-        return 3;
     }
 
     // read infile's BITMAPFILEHEADER
@@ -54,22 +44,20 @@ int main(int argc, char* argv[])
     if (bf.bfType != 0x4d42 || bf.bfOffBits != 54 || bi.biSize != 40 || 
         bi.biBitCount != 24 || bi.biCompression != 0)
     {
-        fclose(outptr);
         fclose(inptr);
         fprintf(stderr, "Unsupported file format.\n");
         return 4;
     }
-
-    // write outfile's BITMAPFILEHEADER
-    fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
-
-    // write outfile's BITMAPINFOHEADER
-    fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
-
+    
     // determine padding for scanlines
-    int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
-
-    // iterate over infile's scanlines
+   int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+   
+   int tab[256];
+   
+   int min = 255;
+   int max = 0;
+    
+    // iterate over scanlines
     for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
     {
         // iterate over pixels in scanline
@@ -78,42 +66,30 @@ int main(int argc, char* argv[])
             // temporary storage
             RGBTRIPLE triple;
 
-            // read RGB triple from infile
+            // read RGB triple 
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
             
-            // turn red into white
-            if (triple.rgbtRed == 255)
+            if (triple.rgbtRed < min)
             {
-                triple.rgbtBlue = 255;
-                triple.rgbtGreen = 255;
+                min = triple.rgbtRed;
             }
             
-            // turn a part of turquoise shades into ...
-            if ((triple.rgbtRed <= 230) && (triple.rgbtBlue == 255) && (triple.rgbtGreen == 255))
+            if (triple.rgbtRed > max)
             {
-                triple.rgbtBlue = 200;
-                triple.rgbtGreen = 200;
+                max = triple.rgbtRed;
             }
             
-            // write RGB triple to outfile
-            fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
         }
 
         // skip over padding, if any
         fseek(inptr, padding, SEEK_CUR);
-
-        // then add it back (to demonstrate how)
-        for (int k = 0; k < padding; k++)
-        {
-            fputc(0x00, outptr);
-        }
     }
 
     // close infile
     fclose(inptr);
-
-    // close outfile
-    fclose(outptr);
+    
+    printf("min = %d\n", min);
+    printf("max = %d\n", max);
 
     // that's all folks
     return 0;
