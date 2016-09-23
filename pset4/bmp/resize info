@@ -5,7 +5,8 @@ OOO
 OxO
 OOO
 
-***********************
+resized images
+
 n=2
 
 OOOOOO
@@ -27,26 +28,11 @@ OOOOOOOOO
 OOOOOOOOO
 OOOOOOOOO
 
-***********************
-
-n=3
-
-OOOOOOOOO
-OOOxxxOOO
-OOOOOOOOO
-OOOOOOOOO < 
-OOOOOOOOO
-OOOOOOOOO
-OOOOOOOOO
-OOOOOOOOO
-OOOOOOOOO
-
-
 interate over rows (height of initial image)
 {
 	repeat n times //vertical resize
 	{
-	    set file position indicator in inFile to the beginning of current row
+	    set file position indicator in inFile to the beginning of current row (length of row * row counter)
 	    
     	iterate over pixels in row (width of initial image)
         {

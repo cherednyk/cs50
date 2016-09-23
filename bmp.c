@@ -54,8 +54,13 @@ int main(int argc, char* argv[])
    
    int tab[256];
    
+   tab[0] = 0;
+   
+   
    int min = 255;
    int max = 0;
+   
+   // http://www.rapidtables.com/convert/color/rgb-to-hex.htm
     
     // iterate over scanlines
     for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
@@ -68,7 +73,20 @@ int main(int argc, char* argv[])
 
             // read RGB triple 
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+            printf("color = %d\n", triple.rgbtRed);
             
+            for (int t = start; t < 255; t++)
+            {
+                if (triple.rgbtRed == tab[t])
+                {
+                    break;
+                }
+                
+                
+                
+            }
+            
+            /*
             if (triple.rgbtRed < min)
             {
                 min = triple.rgbtRed;
@@ -78,6 +96,7 @@ int main(int argc, char* argv[])
             {
                 max = triple.rgbtRed;
             }
+            */
             
         }
 
@@ -90,6 +109,11 @@ int main(int argc, char* argv[])
     
     printf("min = %d\n", min);
     printf("max = %d\n", max);
+    
+    for (int t = 0; t < 255; t++)
+    {
+        printf("pixel = %d\n", tab[t]);
+    }
 
     // that's all folks
     return 0;

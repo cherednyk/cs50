@@ -100,9 +100,9 @@ int main(int argc, char* argv[])
     {
         for (int a = 0; a < resize; a++)
         {
-            // TODO set file position indicator in inFile to the beginning of current row
-            // fseek(inptr, , SEEK_SET);
+            // set file position indicator in inFile to the beginning of current row
             fseek(inptr, i * (bi.biSizeImage / abs(bi.biHeight)) + bf.bfOffBits, SEEK_SET);
+            
             // iterate over pixels in scanline
             for (int j = 0; j < bi.biWidth; j++)
             {
