@@ -9,6 +9,7 @@
        
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "bmp.h"
 
@@ -69,33 +70,68 @@ int main(int argc, char* argv[])
     // determine padding for scanlines
     int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
+    int redMin = 255;
+    int redMax = 0;
+    
+    RGBTRIPLE triple;
+    
+    // remember the file position indicator
+    long tmpPos = ftell(inptr);
+    
+    // search for the minimun and maximum values of red
+    for (int s = 0, biHeight = abs(bi.biHeight); s < biHeight * biHeight; s++)
+    {
+        fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+        
+        if (triple.rgbtRed < redMin)
+        {
+            redMin = triple.rgbtRed;
+        }
+        
+        if (triple.rgbtRed > redMax)
+        {
+            redMax = triple.rgbtRed;
+        }
+    }
+    
+    // set the file position indicator back to tmpPos
+    fseek(inptr, tmpPos, SEEK_SET);
+    
     // iterate over infile's scanlines
     for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
     {
         // iterate over pixels in scanline
         for (int j = 0; j < bi.biWidth; j++)
         {
-            // temporary storage
-            RGBTRIPLE triple;
-
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
             
-            // turn red into white
-            if (triple.rgbtRed == 255)
+            // stretch current range of red to the whole possible range (from 0 to 255)
+            if (triple.rgbtRed < redMax)
             {
-                triple.rgbtBlue = 255;
-                triple.rgbtGreen = 255;
+                triple.rgbtRed -= redMin;
+                triple.rgbtRed *= redMax / (redMax - redMin);
+                
+                // apply the same values for green and blue to get the shades of grey
+                triple.rgbtGreen = triple.rgbtRed;
+                triple.rgbtBlue = triple.rgbtRed;
             }
             
-            // turn a part of turquoise shades into ...
-            if ((triple.rgbtRed <= 230) && (triple.rgbtBlue == 255) && (triple.rgbtGreen == 255))
+            // remember the color of previous to red pixel
+            int tmp;
+            if (triple.rgbtRed != redMax)
             {
-                triple.rgbtBlue = 200;
-                triple.rgbtGreen = 200;
+                tmp = triple.rgbtRed;
             }
             
-            // write RGB triple to outfile
+            // change "red" pixel with the color of previous pixel
+            if (triple.rgbtRed == redMax)
+            {
+                triple.rgbtGreen = tmp;
+                triple.rgbtBlue = tmp;
+                triple.rgbtRed = tmp;
+            }
+            
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
         }
 
