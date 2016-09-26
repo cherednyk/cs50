@@ -109,8 +109,7 @@ int main(int argc, char* argv[])
             // stretch current range of red to the whole possible range (from 0 to 255)
             if (triple.rgbtRed < redMax)
             {
-                triple.rgbtRed -= redMin;
-                triple.rgbtRed *= redMax / (redMax - redMin);
+                triple.rgbtRed = (triple.rgbtRed - redMin) * (redMax / (redMax - redMin));
                 
                 // apply the same values for green and blue to get the shades of grey
                 triple.rgbtGreen = triple.rgbtRed;
