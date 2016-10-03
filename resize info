@@ -28,6 +28,29 @@ OOOOOOOOO
 OOOOOOOOO
 OOOOOOOOO
 
+
+************
+inportant metadata variables:
+- height
+- width
+- size of image ((width + padding) * height)
+- size of file (size of image + metadata)
+
+* one pixel = 3 bytes
+
+************
+
+
+initialize metadata (BITMAP_HEADERs) variables by reading from inFile
+
+change metadata for outFile according to resize value
+
+determine padding of inFile
+
+determine padding for outFile 
+
+write resized metadata (new sizes and new padding) to outFile
+
 interate over rows (height of initial image)
 {
 	repeat n times //vertical resize
@@ -36,16 +59,16 @@ interate over rows (height of initial image)
 	    
     	iterate over pixels in row (width of initial image)
         {
-    		read from inFile
+    		initialize RGBtriple by reading from inFile
     		
     		repeat n times //horizontal resize
     	    {	
-    		    write to outFile
+    		    write RGBtriple to outFile
     		}
-    		
-    		skip padding in inFile
-    		
-    		fill padding with zeroes in outFile
     	}
+    	
+    	skip padding in inFile
+    		
+    	fill padding with zeroes in outFile
     }
 }

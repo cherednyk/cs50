@@ -1,30 +1,33 @@
 #include <stdio.h>
 #include <cs50.h>
 
+int steps = 0;
+
+int collatz(int n)
+{
+    if (n == 1)
+    {
+        return 0;
+    }
+    else if (n % 2 == 0)
+    {
+        steps++;
+        return collatz(n / 2);
+    }
+    else
+    {
+        steps++;
+        return collatz(n * 3 + 1);
+    }
+}
+
 int main(void)
 {
     int n;
-    
-    printf("enter a number: \n");
-    
+    printf("number please: \n");
     n = GetInt();
-    int ni = n;
-    int steps = 0;
     
-    while (n != 1)
-    {
-        if (n % 2 == 0)
-        {
-            n /= 2;
-        }
-        else
-        {
-            n *= 3;
-            n++;
-        }
-        steps++;
-        printf("n = %d\n", n);
-    }
+    collatz(n);
     
-    printf("it took %d steps, to collatz %d to 1\n", steps, ni);
+    printf("steps = %d\n", steps);
 }

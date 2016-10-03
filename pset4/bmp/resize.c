@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
    
     // create and resize metadata (BITMAPFILEHEADER) for new image   
     BITMAPFILEHEADER bf2 = bf;
-    bf2.bfSize = bi2.biSizeImage + 54; 
+    bf2.bfSize = bi2.biSizeImage + bf2.bfOffBits; 
 
     // write outfile's BITMAPFILEHEADER
     fwrite(&bf2, sizeof(BITMAPFILEHEADER), 1, outptr);
@@ -98,6 +98,7 @@ int main(int argc, char* argv[])
     // iterate over infile's scanlines
     for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
     {
+        // iterate "resize"-times of writing 1 full row
         for (int a = 0; a < resize; a++)
         {
             // set file position indicator in inFile to the beginning of current row
@@ -119,7 +120,6 @@ int main(int argc, char* argv[])
                     fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
                 }
                 
-                // TODO vertical resize
             }
     
             // skip over padding, if any in initial image
